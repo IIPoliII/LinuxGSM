@@ -12,7 +12,7 @@ local function_selfname="$(basename "$(readlink -f "${BASH_SOURCE[0]}")")"
 #Variables
 
 username="IIPoliII"
-token="******"
+token="**************"
 
 declare ver
 declare installed_mods
@@ -50,17 +50,15 @@ fn_check_download_factorio_mods(){
 fn_download_factorio_mods(){
         mv ${serverfiles}/mods/mod-list.json ${tmpdir}/factorio/mod-list.json
         login_data="?username=${username}&token=${token}"
-        for mod_dl in "${tmpdir}/factorio/mods-download"/*
-        do
+        for mod_dl in "${tmpdir}/factorio/mods-download"/*; do
                 download=$(cat "$mod_dl")
-                download_full=$(echo "${download}${login_data}")
+				download_full=$(echo "${download}${login_data}")
                 echo $download_full lin
-                wget ${download_full} ${serverfiles}/mods
+                wget --content-disposition -qP ${serverfiles}/mods/ ${download_full}
         done
-        for file in *.*; do
-                mv "$file" "$(basename "$file" .*).zip"
-        done
+        find ${serverfiles}/mods -type f -name "*\?*" -exec sh -c 'mv $1 $(echo $1 | cut -d\? -f1)' mv {}  \;
         mv ${tmpdir}/factorio/mod-list.json ${serverfiles}/mods/mod-list.json
+        rm -rf ${tmpdir}/factorio/mod-list.json
 }
 fn_check_download_factorio_mods
 files=(${tmpdir}/factorio/mods-download/*)
@@ -68,5 +66,6 @@ if [ ${#files[@]} -gt 0 ]; then
 fn_download_factorio_mods
 else
 :
+#nothing for now
 fi
 
